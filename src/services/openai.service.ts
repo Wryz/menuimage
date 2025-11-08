@@ -1,10 +1,12 @@
-import OpenAI from 'openai';
+import axios from 'axios';
 import {OPEN_AI_API_KEY} from '@env';
 
-const openai = new OpenAI({
-  apiKey: OPEN_AI_API_KEY,
-  dangerouslyAllowBrowser: true, // Required for React Native
-  baseURL: 'https://api.openai.com/v1', // Explicit base URL without trailing slash
+const openaiClient = axios.create({
+  baseURL: 'https://api.openai.com/v1',
+  headers: {
+    'Authorization': `Bearer ${OPEN_AI_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
 });
 
 export interface MenuItem {
@@ -21,7 +23,7 @@ export const extractMenuItems = async (
   base64Image: string,
 ): Promise<MenuItem[]> => {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await openaiClient.post('/chat/completions', {
       model: 'gpt-4o',
       messages: [
         {
@@ -43,7 +45,7 @@ export const extractMenuItems = async (
       max_tokens: 4096,
     });
 
-    const content = response.choices[0]?.message?.content || '[]';
+    const content = response.data.choices[0]?.message?.content || '[]';
     
     // Extract JSON from the response
     const jsonMatch = content.match(/\[[\s\S]*\]/);
@@ -68,7 +70,7 @@ export const searchMenuItemImages = async (
     // For now, we'll use a combination of the Unsplash API (free) as a fallback
     // But let's use OpenAI to help us get better search terms
     
-    const response = await openai.chat.completions.create({
+    const response = await openaiClient.post('/chat/completions', {
       model: 'gpt-4o-mini',
       messages: [
         {
@@ -79,7 +81,7 @@ export const searchMenuItemImages = async (
       max_tokens: 100,
     });
 
-    const searchTerms = response.choices[0]?.message?.content || menuItem.name;
+    const searchTerms = response.data.choices[0]?.message?.content || menuItem.name;
     
     // Use Unsplash API (free tier) to get actual images
     // For production, you'd want to use multiple sources including Google Custom Search

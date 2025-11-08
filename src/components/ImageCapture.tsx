@@ -1,14 +1,19 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
+  Text,
   TouchableOpacity,
   StyleSheet,
   Alert,
-  ActivityIndicator,
+  Platform,
 } from 'react-native';
-import {Camera, useCameraDevice} from 'react-native-vision-camera';
-import RNFS from 'react-native-fs';
-import {colors} from '../theme/colors';
+import {
+  launchCamera,
+  type ImagePickerResponse,
+} from 'react-native-image-picker';
+import {request, check, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import {colors, typography, spacing, borderRadius} from '../theme/colors';
+import {CameraIcon} from './icons/CameraIcon';
 
 interface ImageCaptureProps {
   onImageSelected: (base64Image: string) => void;
@@ -17,89 +22,137 @@ interface ImageCaptureProps {
 export const ImageCapture: React.FC<ImageCaptureProps> = ({
   onImageSelected,
 }) => {
-  const [hasPermission, setHasPermission] = useState(false);
-  const [isCapturing, setIsCapturing] = useState(false);
-  const camera = React.useRef<Camera>(null);
-  const device = useCameraDevice('back');
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   useEffect(() => {
-    requestCameraPermission();
+    checkCameraPermission();
   }, []);
 
-  const requestCameraPermission = async () => {
-    const permission = await Camera.requestCameraPermission();
-    setHasPermission(permission === 'granted');
-    
-    if (permission === 'denied') {
-      Alert.alert(
-        'Camera Permission Required',
-        'Please enable camera access in your device settings to use this app.',
-        [{text: 'OK'}],
-      );
-    }
-  };
-
-  const handleCapture = async () => {
-    if (!camera.current) {
-      return;
-    }
-
+  const checkCameraPermission = async () => {
     try {
-      setIsCapturing(true);
-      
-      const photo = await camera.current.takePhoto({
-        flash: 'off',
-      });
+      const permission =
+        Platform.OS === 'ios'
+          ? PERMISSIONS.IOS.CAMERA
+          : PERMISSIONS.ANDROID.CAMERA;
 
-      // Read the photo file as base64
-      const base64 = await RNFS.readFile(photo.path, 'base64');
-      
-      onImageSelected(base64);
+      const result = await check(permission);
+      setHasPermission(result === RESULTS.GRANTED);
     } catch (error) {
-      console.error('Error capturing photo:', error);
-      Alert.alert('Error', 'Failed to capture photo. Please try again.');
-      setIsCapturing(false);
+      console.error('Error checking camera permission:', error);
+      setHasPermission(false);
     }
   };
 
-  if (!hasPermission) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
+  const requestCameraPermission = async (): Promise<boolean> => {
+    try {
+      const permission =
+        Platform.OS === 'ios'
+          ? PERMISSIONS.IOS.CAMERA
+          : PERMISSIONS.ANDROID.CAMERA;
 
-  if (!device) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
+      const result = await request(permission);
+
+      if (result === RESULTS.GRANTED) {
+        setHasPermission(true);
+        return true;
+      } else if (result === RESULTS.DENIED) {
+        Alert.alert(
+          'Camera Permission Required',
+          'Please allow camera access to take photos of menus.',
+          [{text: 'OK'}],
+        );
+        return false;
+      } else if (result === RESULTS.BLOCKED) {
+        Alert.alert(
+          'Camera Permission Blocked',
+          'Please enable camera access in your device settings to take photos.',
+          [{text: 'OK'}],
+        );
+        return false;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error requesting camera permission:', error);
+      return false;
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    // Request permission if not granted
+    if (!hasPermission) {
+      const granted = await requestCameraPermission();
+      if (!granted) {
+        return;
+      }
+    }
+
+    launchCamera(
+      {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        quality: 0.8,
+        cameraType: 'back',
+      },
+      handleImageResponse,
     );
-  }
+  };
+
+  const handleImageResponse = (response: ImagePickerResponse) => {
+    if (response.didCancel) {
+      console.log('User cancelled camera');
+    } else if (response.errorCode) {
+      Alert.alert('Error', response.errorMessage || 'Failed to capture image');
+    } else if (response.assets && response.assets[0]?.base64) {
+      onImageSelected(response.assets[0].base64);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Camera
-        ref={camera}
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={true}
-        photo={true}
-      />
-      
-      {/* Capture Button */}
-      <View style={styles.controls}>
+      <View style={styles.content}>
+        {/* Instruction */}
+        <Text style={styles.instruction}>
+          Take a photo of a menu to get started
+        </Text>
+
+        {/* Camera preview area */}
+        <View style={styles.cameraPreview}>
+          {hasPermission === false && (
+            <View style={styles.permissionPrompt}>
+              <CameraIcon size={64} color={colors.gray400} />
+              <Text style={styles.permissionText}>
+                Camera access is required
+              </Text>
+              <Text style={styles.permissionSubtext}>
+                Tap the button below to grant permission
+              </Text>
+            </View>
+          )}
+          {hasPermission === true && (
+            <View style={styles.cameraReady}>
+              <CameraIcon size={64} color={colors.primary} />
+              <Text style={styles.cameraReadyText}>
+                Camera Ready
+              </Text>
+            </View>
+          )}
+          {hasPermission === null && (
+            <View style={styles.cameraReady}>
+              <CameraIcon size={64} color={colors.gray400} />
+            </View>
+          )}
+        </View>
+
+        {/* Capture button */}
         <TouchableOpacity
           style={styles.captureButton}
-          onPress={handleCapture}
-          disabled={isCapturing}
+          onPress={handleTakePhoto}
           activeOpacity={0.8}>
-          {isCapturing ? (
-            <ActivityIndicator size="large" color={colors.white} />
-          ) : (
-            <View style={styles.captureButtonInner} />
-          )}
+          <View style={styles.captureButtonInner}>
+            <CameraIcon size={32} color={colors.white} />
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -109,31 +162,77 @@ export const ImageCapture: React.FC<ImageCaptureProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.black,
+    backgroundColor: colors.background,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing.xl,
+  },
+  instruction: {
+    fontSize: typography.fontSizes.xl,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginTop: spacing.xl,
+  },
+  cameraPreview: {
+    flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 3,
+    borderColor: colors.gray300,
+    borderStyle: 'dashed',
+    borderRadius: borderRadius.xl,
+    backgroundColor: colors.white,
+    marginVertical: spacing.xxl,
   },
-  controls: {
-    position: 'absolute',
-    bottom: 50,
-    left: 0,
-    right: 0,
+  permissionPrompt: {
     alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  permissionText: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.textPrimary,
+    marginTop: spacing.lg,
+    textAlign: 'center',
+  },
+  permissionSubtext: {
+    fontSize: typography.fontSizes.base,
+    color: colors.textSecondary,
+    marginTop: spacing.sm,
+    textAlign: 'center',
+  },
+  cameraReady: {
+    alignItems: 'center',
+  },
+  cameraReadyText: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.medium,
+    color: colors.primary,
+    marginTop: spacing.md,
   },
   captureButton: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
-    borderColor: colors.white,
+    marginBottom: spacing.xl,
   },
   captureButtonInner: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.white,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: colors.white,
   },
 });
