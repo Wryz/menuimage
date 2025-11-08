@@ -31,6 +31,12 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos of menus.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select menu photos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need access to save menu images to your photo library.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

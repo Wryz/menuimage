@@ -1,97 +1,177 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# MenuImage
 
-# Getting Started
+Transform any menu into a visual gallery! MenuImage uses AI to analyze menu photos and automatically finds beautiful images of each dish.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Features
 
-## Step 1: Start Metro
+- 📸 **Take or Upload Menu Photos** - Capture menus using your camera or select from your photo library
+- 🤖 **AI-Powered Menu Analysis** - Uses OpenAI's GPT-4 Vision to extract menu items, descriptions, and prices
+- 🖼️ **Automatic Image Search** - Finds high-quality food images for each menu item
+- 📱 **Beautiful Gallery View** - Browse menu items in an elegant, Instagram-style grid
+- ⚡ **One-Page Experience** - Simple, intuitive flow from capture to gallery
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Screenshots
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+[Add screenshots here]
 
-```sh
-# Using npm
-npm start
+## Prerequisites
 
-# OR using Yarn
-yarn start
-```
+- Node.js >= 20
+- React Native development environment set up
+- iOS: Xcode and CocoaPods
+- Android: Android Studio and SDK
+- OpenAI API Key
 
-## Step 2: Build and run your app
+## Installation
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/menuimage.git
+   cd menuimage
+   ```
 
-### Android
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-```sh
-# Using npm
-npm run android
+3. **Set up environment variables**
+   
+   Copy the example env file and add your OpenAI API key:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit `.env` and add your OpenAI API key:
+   ```
+   OPEN_AI_API_KEY=your_openai_api_key_here
+   ```
 
-# OR using Yarn
-yarn android
-```
+4. **Install iOS dependencies**
+   ```bash
+   cd ios
+   bundle install
+   export LANG=en_US.UTF-8
+   bundle exec pod install
+   cd ..
+   ```
+
+## Running the App
 
 ### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Or open `ios/MenuImageApp.xcworkspace` in Xcode and run.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### Android
+```bash
+npm run android
+```
 
-## Step 3: Modify your app
+## How It Works
 
-Now that you have successfully run the app, let's make changes!
+1. **Capture**: Take a photo of a menu or select one from your library
+2. **Analyze**: The app sends the image to OpenAI's GPT-4 Vision API to extract menu items
+3. **Search**: For each menu item, the app searches for high-quality food images
+4. **Display**: Browse the menu items in a beautiful gallery with item names, descriptions, and prices
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Project Structure
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+```
+menuimage/
+├── src/
+│   ├── components/
+│   │   ├── ImageCapture.tsx    # Camera/photo picker component
+│   │   └── MenuGallery.tsx     # Gallery display component
+│   └── services/
+│       └── openai.service.ts   # OpenAI API integration
+├── types/
+│   └── env.d.ts                # TypeScript definitions for env variables
+├── App.tsx                      # Main app component
+└── .env                         # Environment variables (not in git)
+```
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## Technologies Used
 
-## Congratulations! :tada:
+- **React Native** - Cross-platform mobile framework
+- **TypeScript** - Type-safe JavaScript
+- **OpenAI GPT-4 Vision** - Menu analysis and text extraction
+- **React Native Image Picker** - Camera and photo library access
+- **React Native Permissions** - Permission handling
+- **React Native Safe Area Context** - Safe area handling
 
-You've successfully run and modified your React Native App. :partying_face:
+## API Keys
 
-### Now what?
+This app requires an OpenAI API key. Get one at [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+⚠️ **Important**: Never commit your `.env` file with API keys to version control. The `.env` file is already in `.gitignore`.
 
-# Troubleshooting
+## Development
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### Running Tests
+```bash
+npm test
+```
 
-# Learn More
+### Linting
+```bash
+npm run lint
+```
 
-To learn more about React Native, take a look at the following resources:
+### Type Checking
+```bash
+npx tsc --noEmit
+```
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+## Permissions
+
+The app requires the following permissions:
+
+### iOS
+- Camera access
+- Photo library access
+
+### Android
+- Camera access
+- Read external storage
+- Read media images
+
+## Troubleshooting
+
+### iOS Build Issues
+- Make sure CocoaPods are installed: `bundle exec pod install`
+- Clean build folder: `cd ios && xcodebuild clean`
+- Reset Metro cache: `npm start -- --reset-cache`
+
+### Android Build Issues
+- Clean gradle: `cd android && ./gradlew clean`
+- Reset Metro cache: `npm start -- --reset-cache`
+
+### API Issues
+- Verify your OpenAI API key is correct in `.env`
+- Check that you have sufficient credits in your OpenAI account
+- Ensure `.env` file is in the project root
+
+## Future Enhancements
+
+- [ ] Add favorites/bookmarking
+- [ ] Save menu history
+- [ ] Share menu galleries
+- [ ] Multiple image sources (Google Images, Yelp, etc.)
+- [ ] Dietary filters (vegetarian, vegan, gluten-free)
+- [ ] Price range filters
+- [ ] Restaurant information integration
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Support
+
+For issues and questions, please open an issue on GitHub.
