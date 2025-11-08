@@ -37,6 +37,12 @@
 	<string>We need access to your photo library to select menu photos.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>We need access to save menu images to your photo library.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app uses the local network to connect to the development server during testing. This permission is only needed during development and will not be used in the production version.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+	</array>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

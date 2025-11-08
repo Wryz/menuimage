@@ -15,7 +15,6 @@ import {
   type MenuItemWithImage,
 } from './src/services/openai.service';
 import {colors, typography, spacing} from './src/theme/colors';
-import {TopographyBackground} from './src/components/TopographyBackground';
 import {SparklesIcon} from './src/components/icons/SparklesIcon';
 
 type AppState = 'capture' | 'processing' | 'gallery';
@@ -69,7 +68,6 @@ function App() {
 
         {appState === 'processing' && (
           <View style={styles.processingContainer}>
-            <TopographyBackground opacity={0.05} color={colors.primary} />
             <View style={styles.loadingCard}>
               <View style={styles.iconWrapper}>
                 <SparklesIcon size={48} color={colors.primary} />

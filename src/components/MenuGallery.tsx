@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import type {MenuItemWithImage} from '../services/openai.service';
 import {colors, typography, spacing, borderRadius, shadows} from '../theme/colors';
-import {TopographyBackground} from './TopographyBackground';
 
 interface MenuGalleryProps {
   menuItems: MenuItemWithImage[];
@@ -51,7 +50,6 @@ export const MenuGallery: React.FC<MenuGalleryProps> = ({
 
   return (
     <View style={styles.container}>
-      <TopographyBackground opacity={0.04} color={colors.primary} />
       {/* Header */}
       <View style={styles.header}>
         <View>

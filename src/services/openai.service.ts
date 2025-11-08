@@ -3,6 +3,8 @@ import {OPEN_AI_API_KEY} from '@env';
 
 const openai = new OpenAI({
   apiKey: OPEN_AI_API_KEY,
+  dangerouslyAllowBrowser: true, // Required for React Native
+  baseURL: 'https://api.openai.com/v1', // Explicit base URL without trailing slash
 });
 
 export interface MenuItem {

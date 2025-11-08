@@ -34,9 +34,10 @@ export const colors = {
   textWhite: '#FFFFFF',
   
   // Background colors
-  background: '#FAFAFA',
+  background: '#FFF4EF',        // Light peachy orange
   backgroundCard: '#FFFFFF',
   backgroundOverlay: 'rgba(0, 0, 0, 0.5)',
+  backgroundPattern: '#FFE5DB',  // Even lighter orange for pattern visibility
   
   // Status colors
   success: '#4CAF50',
